@@ -1,28 +1,46 @@
 package tests;
 
-import asserts.AdminLoginPageAssert;
+import api.GoodsApi;
 import asserts.AdminPageAssert;
+import asserts.GoodsApiAssert;
 import asserts.MainPageAssert;
+import config.TestConfig;
 import pages.AdminLoginPage;
 import pages.AdminPage;
 import pages.MainPage;
 
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import steps.GoodsSteps;
 
 import static com.codeborne.selenide.Selenide.closeWebDriver;
 
-public class PageObjectTest {
+@Tag("ui")
+public class PageObjectTest extends UiTestBase {
 
     MainPage mainPage;
     MainPageAssert mainPageAssert;
 
     AdminLoginPage loginPage;
-    AdminLoginPageAssert loginPageAssert;
 
     AdminPage adminPage;
     AdminPageAssert adminPageAssert;
+
+    @BeforeAll
+    static void prepareProducts() {
+        GoodsApi goodsApi = new GoodsApi(
+                TestConfig.BASE_URL,
+                TestConfig.ADMIN_LOGIN,
+                TestConfig.ADMIN_PASSWORD
+        );
+        GoodsSteps goodsSteps = new GoodsSteps(goodsApi, new GoodsApiAssert());
+
+        goodsSteps.ensureProductExists("стакан", 13);
+        goodsSteps.ensureProductExists("благовония", 25);
+    }
 
     @BeforeEach
     void setUp() {
@@ -30,7 +48,6 @@ public class PageObjectTest {
         mainPageAssert = new MainPageAssert(mainPage);
 
         loginPage = new AdminLoginPage();
-        loginPageAssert = new AdminLoginPageAssert(loginPage);
 
         adminPage = new AdminPage();
         adminPageAssert = new AdminPageAssert(adminPage);
@@ -76,13 +93,7 @@ public class PageObjectTest {
         String productName =
                 "PageObject товар " + System.currentTimeMillis();
 
-        loginPage.setLogin("admin");
-        loginPage.setPassword("secret123");
-
-        loginPageAssert.loginIsFilled();
-        loginPageAssert.passwordIsFilled();
-
-        loginPage.clickLogin();
+        loginPage.login(TestConfig.ADMIN_LOGIN, TestConfig.ADMIN_PASSWORD);
 
         adminPageAssert.nameFieldIsVisible();
         adminPageAssert.priceFieldIsVisible();
@@ -106,9 +117,7 @@ public class PageObjectTest {
         String newName =
                 "новый товар " + System.currentTimeMillis();
 
-        loginPage.setLogin("admin");
-        loginPage.setPassword("secret123");
-        loginPage.clickLogin();
+        loginPage.login(TestConfig.ADMIN_LOGIN, TestConfig.ADMIN_PASSWORD);
 
         adminPage.addProduct(oldName, "80");
         adminPageAssert.notificationIsVisible();

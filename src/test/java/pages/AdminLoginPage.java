@@ -1,29 +1,18 @@
 package pages;
 
+import io.qameta.allure.Step;
+import config.TestConfig;
+
+import static com.codeborne.selenide.Selenide.$;
 import static com.codeborne.selenide.Selenide.open;
 
 public class AdminLoginPage {
 
-    private String login;
-    private String password;
-
-    public void setLogin(String login) {
-        this.login = login;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public void clickLogin() {
-        open("http://" + login + ":" + password + "@localhost:8080/admin");
-    }
-
-    public String getLogin() {
-        return login;
-    }
-
-    public String getPassword() {
-        return password;
+    @Step("Войти в панель администратора под пользователем {login}")
+    public void login(String login, String password) {
+        open(TestConfig.BASE_URL + "/admin");
+        $("#username").setValue(login);
+        $("#password").setValue(password);
+        $("button[type='submit']").click();
     }
 }

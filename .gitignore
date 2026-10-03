@@ -1,5 +1,7 @@
 .gradle/
 build/
+data/
+allure-report/
 .idea/
 *.iml
 .DS_Store

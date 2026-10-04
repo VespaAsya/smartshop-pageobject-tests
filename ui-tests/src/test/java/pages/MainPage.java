@@ -6,7 +6,9 @@ import config.TestConfig;
 import io.qameta.allure.Step;
 
 import static com.codeborne.selenide.ClickOptions.usingJavaScript;
-import static com.codeborne.selenide.Selenide.*;
+import static com.codeborne.selenide.Selenide.$;
+import static com.codeborne.selenide.Selenide.$$;
+import static com.codeborne.selenide.Selenide.open;
 
 public class MainPage {
 
@@ -21,19 +23,17 @@ public class MainPage {
 
     @Step("Открыть главную страницу магазина")
     public void openPage() {
-        open(TestConfig.BASE_URL + "/");
+        open(TestConfig.BASE_URL + TestConfig.SHOP_PATH);
     }
 
     @Step("Установить количество товара '{name}': {count}")
     public void setProductCount(String name, String count) {
-        $(".product-card[data-name='" + name + "'] .qty-input")
-                .setValue(count);
+        $(".product-card[data-name='" + name + "'] .qty-input").setValue(count);
     }
 
     @Step("Добавить товар '{name}' в корзину")
     public void addProduct(String name) {
-        $(".product-card[data-name='" + name + "'] " +
-                "button[data-action='add-to-cart']")
+        $(".product-card[data-name='" + name + "'] button[data-action='add-to-cart']")
                 .click(usingJavaScript());
     }
 

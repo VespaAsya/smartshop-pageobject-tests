@@ -8,7 +8,7 @@ import static com.codeborne.selenide.Condition.visible;
 
 public class AdminPageAssert {
 
-    AdminPage page;
+    private final AdminPage page;
 
     public AdminPageAssert(AdminPage page) {
         this.page = page;

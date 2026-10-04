@@ -1,0 +1,47 @@
+plugins {
+    id 'java'
+    id 'io.qameta.allure'
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+dependencies {
+    testImplementation project(':common')
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
+    testImplementation 'io.rest-assured:rest-assured:5.5.1'
+    testImplementation 'com.fasterxml.jackson.core:jackson-databind:2.18.2'
+    testImplementation platform('io.qameta.allure:allure-bom:2.35.4')
+    testImplementation 'io.qameta.allure:allure-jupiter'
+    testImplementation 'io.qameta.allure:allure-rest-assured'
+}
+
+allure {
+    version = '2.46.1'
+    adapter {
+        allureJavaVersion = '2.35.4'
+        aspectjWeaver = true
+        frameworks {
+            jupiter {
+                enabled = true
+            }
+        }
+    }
+}
+
+tasks.withType(Test).configureEach {
+    systemProperty 'allure.results.directory', layout.buildDirectory.dir('allure-results').get().asFile
+}
+
+tasks.register('apiSmoke', Test) {
+    group = 'verification'
+    description = 'Запускает smoke API-тесты'
+    testClassesDirs = sourceSets.test.output.classesDirs
+    classpath = sourceSets.test.runtimeClasspath
+    useJUnitPlatform {
+        includeTags 'api-smoke'
+    }
+}

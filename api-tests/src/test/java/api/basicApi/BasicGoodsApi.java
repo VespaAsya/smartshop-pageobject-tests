@@ -1,60 +1,64 @@
-package api;
+package api.basicApi;
 
+import config.TestConfig;
 import io.qameta.allure.Step;
-import io.qameta.allure.restassured.AllureRestAssured;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 
+import java.util.Map;
+
 import static io.restassured.RestAssured.given;
 
-public class GoodsApi {
+public class BasicGoodsApi {
 
     private final RequestSpecification request;
 
-    public GoodsApi(String baseUrl, String username, String password) {
-        request = given()
-                .baseUri(baseUrl)
-                .auth().preemptive().basic(username, password)
-                .contentType("application/json")
-                .filter(new AllureRestAssured());
+    public BasicGoodsApi(RequestSpecification request) {
+        this.request = request;
     }
 
     @Step("API: получить список товаров")
     public Response getGoods() {
         return given().spec(request)
-                .when().get("/goods/list");
+                .when().get(TestConfig.GOODS_LIST_PATH);
     }
 
     @Step("API: добавить товар '{name}' с ценой {price}")
     public Response addGood(String name, int price) {
         return given().spec(request)
-                .body("{\"name\":\"" + name + "\",\"price\":" + price + "}")
-                .when().post("/goods/add");
+                .body(Map.of(
+                        TestConfig.PRODUCT_NAME_FIELD, name,
+                        TestConfig.PRODUCT_PRICE_FIELD, price
+                ))
+                .when().post(TestConfig.GOODS_ADD_PATH);
     }
 
     @Step("API: отправить невалидный товар без названия")
     public Response addGoodWithoutName(int price) {
         return given().spec(request)
-                .body("{\"price\":" + price + "}")
-                .when().post("/goods/add");
+                .body(Map.of(TestConfig.PRODUCT_PRICE_FIELD, price))
+                .when().post(TestConfig.GOODS_ADD_PATH);
     }
 
     @Step("API: получить товар с id={id}")
     public Response getGood(long id) {
         return given().spec(request)
-                .when().get("/goods/{id}", id);
+                .when().get(TestConfig.GOODS_ITEM_PATH, id);
     }
 
     @Step("API: изменить товар с id={id} на '{name}', цена {price}")
     public Response updateGood(long id, String name, int price) {
         return given().spec(request)
-                .body("{\"name\":\"" + name + "\",\"price\":" + price + "}")
-                .when().patch("/goods/{id}", id);
+                .body(Map.of(
+                        TestConfig.PRODUCT_NAME_FIELD, name,
+                        TestConfig.PRODUCT_PRICE_FIELD, price
+                ))
+                .when().patch(TestConfig.GOODS_ITEM_PATH, id);
     }
 
     @Step("API: удалить товар с id={id}")
     public Response deleteGood(long id) {
         return given().spec(request)
-                .when().delete("/goods/{id}", id);
+                .when().delete(TestConfig.GOODS_ITEM_PATH, id);
     }
 }

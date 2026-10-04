@@ -9,7 +9,7 @@ import static com.codeborne.selenide.Selenide.$;
 
 public class MainPageAssert {
 
-    MainPage page;
+    private final MainPage page;
 
     public MainPageAssert(MainPage page) {
         this.page = page;
@@ -52,13 +52,11 @@ public class MainPageAssert {
 
     @Step("Проверить видимость товара '{name}'")
     public void productIsVisible(String name) {
-        $(".product-card[data-name='" + name + "']")
-                .shouldBe(visible);
+        $(".product-card[data-name='" + name + "']").shouldBe(visible);
     }
 
     @Step("Проверить цену товара '{name}': {price}")
     public void productHasPrice(String name, String price) {
-        $(".product-card[data-name='" + name + "']")
-                .shouldHave(text(price));
+        $(".product-card[data-name='" + name + "']").shouldHave(text(price));
     }
 }

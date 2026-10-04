@@ -1,12 +1,13 @@
 package asserts;
 
+import config.TestConfig;
 import io.qameta.allure.Step;
 import io.restassured.response.Response;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class GoodsApiAssert {
+public class ApiAssert {
 
     @Step("Проверить код ответа API: {expectedStatusCode}")
     public void statusCodeIs(Response response, int expectedStatusCode) {
@@ -20,7 +21,7 @@ public class GoodsApiAssert {
 
     @Step("Проверить id созданного товара")
     public long createdProductId(Response response) {
-        long id = response.jsonPath().getLong("data.id");
+        long id = response.jsonPath().getLong(TestConfig.CREATED_ID_JSON_PATH);
         assertTrue(id > 0, "Product id must be positive");
         return id;
     }

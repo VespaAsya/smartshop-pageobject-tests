@@ -3,7 +3,8 @@ package pages;
 import com.codeborne.selenide.SelenideElement;
 import io.qameta.allure.Step;
 
-import static com.codeborne.selenide.Selenide.*;
+import static com.codeborne.selenide.Selenide.$;
+import static com.codeborne.selenide.Selenide.refresh;
 
 public class AdminPage {
 
@@ -12,11 +13,20 @@ public class AdminPage {
     public SelenideElement addButton = $("#add-btn");
     public SelenideElement toast = $(".toast");
     public SelenideElement backToShop = $("a[href='/']");
+
     @Step("Добавить товар через панель администратора: {name}, цена {price}")
     public void addProduct(String name, String price) {
         nameInput.setValue(name);
         priceInput.setValue(price);
         addButton.click();
+    }
+
+    @Step("Обеспечить наличие товара '{name}' с ценой {price}")
+    public void ensureProductExists(String name, String price) {
+        refresh();
+        if (!$("input[value='" + name + "']").exists()) {
+            addProduct(name, price);
+        }
     }
 
     @Step("Изменить товар '{oldName}' на '{newName}', цена {newPrice}")

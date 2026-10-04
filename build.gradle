@@ -1,61 +1,42 @@
 plugins {
-    id 'java'
-    id 'io.qameta.allure' version '4.3.0'
+    id 'io.qameta.allure' version '4.3.0' apply false
 }
 
-repositories {
-    mavenCentral()
+allprojects {
+    group = 'smartshop'
+    version = '1.0-SNAPSHOT'
+
+    repositories {
+        mavenCentral()
+    }
 }
 
-dependencies {
-    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
-    testImplementation 'com.codeborne:selenide:7.18.2'
-    testImplementation 'io.rest-assured:rest-assured:5.5.1'
-    testImplementation platform('io.qameta.allure:allure-bom:2.35.4')
-    testImplementation 'io.qameta.allure:allure-jupiter'
-    testImplementation 'io.qameta.allure:allure-selenide'
-    testImplementation 'io.qameta.allure:allure-rest-assured'
-}
+subprojects {
+    tasks.withType(Test).configureEach {
+        useJUnitPlatform()
 
-allure {
-    version = '2.46.1'
-    adapter {
-        allureJavaVersion = '2.35.4'
-        aspectjWeaver = true
-        frameworks {
-            jupiter {
-                enabled = true
+        System.properties.each { key, value ->
+            if (key.toString().startsWith('smartshop.')) {
+                systemProperty key.toString(), value
             }
         }
     }
 }
 
-tasks.withType(Test).configureEach {
-    useJUnitPlatform()
-    systemProperty 'allure.results.directory', layout.buildDirectory.dir('allure-results').get().asFile
-    ['baseUrl', 'adminLogin', 'adminPassword'].each { propertyName ->
-        if (System.getProperty(propertyName)) {
-            systemProperty propertyName, System.getProperty(propertyName)
-        }
-    }
+tasks.register('apiSmoke') {
+    group = 'verification'
+    description = 'Запускает smoke API-тесты'
+    dependsOn ':api-tests:apiSmoke'
 }
 
-tasks.register('uiTest', Test) {
-    testClassesDirs = sourceSets.test.output.classesDirs
-    classpath = sourceSets.test.runtimeClasspath
-    useJUnitPlatform {
-        includeTags 'ui'
-    }
+tasks.register('uiSmoke') {
+    group = 'verification'
+    description = 'Запускает smoke UI-тесты'
+    dependsOn ':ui-tests:uiSmoke'
 }
 
-tasks.register('apiTest', Test) {
-    testClassesDirs = sourceSets.test.output.classesDirs
-    classpath = sourceSets.test.runtimeClasspath
-    useJUnitPlatform {
-        includeTags 'api'
-    }
-}
-
-tasks.named('allureReport') {
-    dependsOn tasks.named('test')
+tasks.register('smoke') {
+    group = 'verification'
+    description = 'Запускает smoke API- и UI-тесты'
+    dependsOn 'apiSmoke', 'uiSmoke'
 }
